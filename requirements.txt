@@ -1,0 +1,9 @@
+# What the bot venv (~/.local/share/homelab-bot-venv) has installed; CI installs this. Update after a pip upgrade.
+discord.py==2.7.1
+# Voice for /radio: the PC has `pip install "discord.py[voice]==2.7.1"` (davey = Discord's DAVE voice encryption,
+# PyNaCl 1.5.0). PyNaCl is left out here: CI's Alpine image has no wheel for it, and the tests don't use voice.
+# davey stays on 0.1.7: with 0.2.0 the bot connected and sent audio but listeners heard silence (2026-11-16).
+davey==0.1.7
+matplotlib==3.11.2
+psutil==7.2.2
+python-dotenv==1.2.4
