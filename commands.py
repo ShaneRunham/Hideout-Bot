@@ -16,6 +16,7 @@ import keyboard
 import playtime
 import radio
 import remind
+import wanted
 
 from typing import TYPE_CHECKING
 from common import HOME, LONDON, OwnerView, SECRET_NAME, is_crew, owner_only, run, save_attachments, save_state
@@ -369,6 +370,33 @@ async def playtime_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(view=cards.Card(cards.card("accent", *items)), ephemeral=True)
 
 
+@app_commands.command(name="wanted", description="The Wanted Level: what's wrong now, how long for, and the last 7 days")
+@owner_only()
+async def wanted_cmd(interaction: discord.Interaction):
+    bot: HomelabBot = interaction.client
+    w, now = bot.wanted, time.time()
+    stars, crimes = w.get("stars", 0), w.get("crimes", [])
+    if stars:
+        items = [cards.header(wanted.stars_text(stars), f"Wanted · {len(crimes)} on the rap sheet"), cards.divider(),
+                 cards.text(*(f"{'★' * c['stars']}{'☆' * (5 - c['stars'])}  **{c['what']}** · since <t:{int(c['since'])}:R>"
+                              for c in crimes[:15]))]
+    else:
+        clean = now - w.get("clean_since", now)
+        best = max(w.get("best_clean", 0), clean)
+        items = [cards.header("No heat", f"Clean for {playtime.fmt(int(clean // 60))} · record {playtime.fmt(int(best // 60))}")]
+    today = datetime.datetime.now(LONDON).replace(hour=0, minute=0, second=0, microsecond=0)
+    days = [((today - datetime.timedelta(days=i)).timestamp(), min(now, (today - datetime.timedelta(days=i - 1)).timestamp()))
+            for i in range(6, -1, -1)]
+    first = (w.get("history") or [[now]])[0][0]  # the log started 16 Nov 2026
+    lines = [f"{datetime.datetime.fromtimestamp(d[0], LONDON).strftime('%a')}  " + (
+             "*no log yet*" if d[1] <= first else f"{wanted.stars_text(peak)}  "
+             f"{'wanted ' + playtime.fmt(int(secs // 60)) if secs >= 60 else ''}")
+             for d, (peak, secs) in zip(days, wanted.day_peaks(w.get("history", []), days))]
+    items += [cards.divider(), cards.text("### Last 7 days (highest level, time wanted)", *lines)]
+    await interaction.response.send_message(view=cards.Card(cards.card("red" if stars >= 3 else "gold" if stars else "green",
+                                                                       *items)), ephemeral=True)
+
+
 @app_commands.command(name="radio", description="Vice Radio in your voice channel (or the Vice Radio one): play, skip or stop")
 @app_commands.choices(action=[app_commands.Choice(name="Play", value="play"),
                               app_commands.Choice(name="Skip", value="skip"),
@@ -395,4 +423,4 @@ async def radio_cmd(interaction: discord.Interaction, action: str = "play"):
                                     "everyone else does, and clears its messages.", ephemeral=True)
 
 
-COMMANDS = (getfile, setup, clip, type_cmd, cleanup, ask, new, note, playtime_cmd, remind_cmd, reminders, radio_cmd)
+COMMANDS = (getfile, setup, clip, type_cmd, cleanup, ask, new, note, playtime_cmd, remind_cmd, reminders, radio_cmd, wanted_cmd)

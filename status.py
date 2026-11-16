@@ -21,6 +21,7 @@ import graphs
 import gta6
 import rockstar_news
 import playtime
+import wanted
 
 from common import GRAPH_EVERY, HA_STATE, LONDON, PSN_ME, PSN_NAMES, STATUS_ART, SWITCH_NAMES, log, run, save_state, webhook
 
@@ -434,6 +435,10 @@ class StatusMixin:
             act = discord.Game("on the PC with Moonlight")
         elif colour != "red" and tv.get("power") == "on" and tv.get("app") and tv["app"] not in ("Vice Home", "Home Hub", "LG home", "Hearth"):
             act = discord.Activity(type=discord.ActivityType.watching, name=tv["app"] + (f" · {tv['playing']}" if tv.get("playing") else ""))
+        elif self.wanted.get("stars"):  # Wanted ★★★ · Container radio is exited
+            w = self.wanted
+            act = discord.Activity(type=discord.ActivityType.watching,
+                                   name=f"Wanted {wanted.stars_text(w['stars'])} · {w['crimes'][0]['what']}"[:120])
         else:
             act = discord.Activity(type=discord.ActivityType.watching, name=f"{collect.platform.node()} · {words}")
         key = (colour, act.name)
@@ -441,7 +446,8 @@ class StatusMixin:
             await self.change_presence(status=status, activity=act)
             self.look = key
         c = self.ch("status")
-        want = "📊┃status" if colour != "red" else "🔴┃status-" + words.replace(" ", "-")  # 🔴┃status-2-problems
+        stars = self.wanted.get("stars", 0)
+        want = "⭐" * stars + "┃status" if stars else "📊┃status"  # ⭐⭐⭐┃status (Wanted Level)
         if c and c.name != want and time.time() - self.renamed_at > 330:
             try:
                 await c.edit(name=want)
@@ -455,7 +461,10 @@ class StatusMixin:
         at 08:00, or as soon as it appears if the bot was down then (until noon). Returns the problems."""
         self.hot_count = self.hot_count + 1 if s["temp"] is not None and s["temp"] >= collect.TEMP_C else 0
         now = collect.problems(s, self.hot_count - 1)
-        out = {"updated": time.time(), "problems": now, "morning": self.state.get("morning")}
+        self.wanted = wanted.update(self.wanted, now, time.time())
+        await asyncio.to_thread(wanted.save, self.wanted)
+        out = {"updated": time.time(), "problems": now, "morning": self.state.get("morning"),
+               "wanted": wanted.for_ha(self.wanted)}
         local = datetime.datetime.now(zoneinfo.ZoneInfo("Europe/London"))
         today = local.date().isoformat()
         if (7, 55) <= (local.hour, local.minute) < (12, 0) and (self.state.get("morning") or {}).get("date") != today:
@@ -467,8 +476,27 @@ class StatusMixin:
             json.dump(out, f)
         os.replace(tmp, HA_STATE)
         self.problems = now
+        if self.wanted.get("change") in ("up", "down", "clear"):  # not "evading": the stars flash, Discord waits
+            await self.wanted_card()
         await self.watch_ha()
         return now
+
+    async def wanted_card(self):
+        """A card in #alerts when the Wanted Level changes (the quiet log; HA does the phone and the TV)."""
+        w = self.wanted
+        stars, crimes = w["stars"], w.get("crimes", [])
+        if w["change"] == "clear":
+            best = max(w.get("best_clean", 0), 0)
+            body = ["-# ⭐ WANTED LEVEL", "## Lost them", f"Shook off {wanted.stars_text(w.get('evaded') or 0)}. "
+                    "Clean streak starts now" + (f" (record {best / 86400:.1f} days)" if best >= 3600 else "") + "."]
+            colour = "green"
+        else:
+            up = w["change"] == "up"
+            body = [f"-# ⭐ WANTED LEVEL · {'HEAT RISING' if up else 'HEAT DROPPING'}", f"## {wanted.stars_text(stars)}",
+                    *(f"{'★' * c['stars']} {c['what']} · since <t:{int(c['since'])}:R>" for c in crimes[:8]),
+                    *(f"✓ Fixed: {f}" for f in w.get("fixed", [])[:5])]
+            colour = "red" if stars >= 3 else "gold"
+        await self.post("alerts", view=cards.Card(cards.card(colour, cards.text(*body))))
 
     async def watch_ha(self):
         """HA sends every alert, so it can't report itself being down: if it doesn't answer for 3 minutes, post one

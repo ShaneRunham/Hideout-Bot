@@ -15,6 +15,7 @@ import claude_chat
 import collect
 import gaming
 import graphs
+import wanted
 
 from common import BOT_NAME, HERE, HOME, INBOX, URL_RE, app_command_error, load_state, log, run, save_attachments, save_state
 from views import ControlPanel, JoinDecision, StopClaude, WelcomeCard
@@ -45,6 +46,7 @@ class HomelabBot(ServerMixin, StatusMixin, RadioMixin, discord.Client):
         self.renamed_at = 0.0
         self.emoji: dict[str, str] = {}  # status-light key -> custom emoji
         self.problems: dict[str, str] = {}  # the latest problems handed to Home Assistant
+        self.wanted = wanted.load()  # Wanted Level state (wanted.py, wanted.json)
         self.claude_lock = asyncio.Lock()  # one question to Claude at a time
         self.radio_msg: discord.Message | None = None  # the /radio now-playing card
         self.radio_song: tuple | None = None
