@@ -104,7 +104,7 @@ def update(st: dict, problems: dict[str, str], now: float) -> dict:
 def for_ha(st: dict) -> dict:
     """What goes into homelab-state.json for HA, the Vice panel and Vice Home."""
     return {k: st.get(k) for k in ("stars", "evading", "evaded", "change", "clean_since", "best_clean")} | {
-        "crimes": [{"what": c["what"], "stars": c["stars"], "since": c["since"]} for c in st.get("crimes", [])]}
+        "crimes": [{"key": c["key"], "what": c["what"], "stars": c["stars"], "since": c["since"]} for c in st.get("crimes", [])]}
 
 
 def stars_text(n: int, total: int = 5) -> str:

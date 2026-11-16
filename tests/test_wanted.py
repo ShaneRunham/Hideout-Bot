@@ -85,7 +85,7 @@ class Wanted(unittest.TestCase):
         st = wanted.update({}, {"speed": "Internet is slow. The last test got 3 down"}, T)
         out = wanted.for_ha(st)
         self.assertEqual(out["stars"], 1)
-        self.assertEqual(out["crimes"], [{"what": "Internet is slow", "stars": 1, "since": T}])
+        self.assertEqual(out["crimes"], [{"key": "speed", "what": "Internet is slow", "stars": 1, "since": T}])
 
 
 if __name__ == "__main__":
