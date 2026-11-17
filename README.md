@@ -1,6 +1,6 @@
 # 🤖 VICE Bot
 
-<img src="https://raw.githubusercontent.com/ShaneRunham/ShaneRunham/main/screens/vice-bot/status-card.jpg" alt="The live #status card, updated every minute, with 24-hour graphs" width="48%">
+<img src="https://raw.githubusercontent.com/ShaneRunham/ShaneRunham/main/screens/vice-bot/status-card.jpg" alt="The live #status card, updated every minute, with 24-hour graphs" width="40%" align="right">
 
 A Discord bot for my homelab and my friends, written in Python with [discord.py](https://github.com/Rapptz/discord.py)
 and Discord's Components v2 cards. It's the part of the homelab that notices things: every minute it takes a
