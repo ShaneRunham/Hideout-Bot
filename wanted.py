@@ -21,6 +21,8 @@ HEAT_EVERY = 3600  # s unfixed per extra star
 HEAT_MAX = 2
 KEEP = 8 * 86400  # history kept for /wanted's week
 
+# Problems that never gain heat: left on on purpose while working on something (Shane, 2026-11-17)
+NO_HEAT = {"tv_ssh"}
 # key (or key prefix ending in ":") -> stars. Anything not listed is 1.
 WEIGHTS = {
     "disk:": 3, "sata": 3, "docker": 3, "backup": 3, "heartbeat": 3,
@@ -70,7 +72,7 @@ def update(st: dict, problems: dict[str, str], now: float) -> dict:
     crimes = []
     for k, msg in problems.items():
         base = weight(k, msg)
-        heat = min(HEAT_MAX, int((now - since[k]) // HEAT_EVERY))
+        heat = 0 if k in NO_HEAT else min(HEAT_MAX, int((now - since[k]) // HEAT_EVERY))
         crimes.append({"key": k, "what": short(msg), "stars": min(5, base + heat), "base": base, "since": since[k]})
     crimes.sort(key=lambda c: (-c["stars"], c["since"]))
     stars = min(5, (crimes[0]["stars"] if crimes else 0) + (1 if len(crimes) >= 3 else 0))

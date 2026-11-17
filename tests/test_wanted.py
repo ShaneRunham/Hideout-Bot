@@ -33,6 +33,10 @@ class Wanted(unittest.TestCase):
         self.assertEqual(st["crimes"][0]["key"], "speed")  # same stars: the oldest first
         self.assertEqual(st["crimes"][1]["what"], "Container a is exited")
 
+    def test_no_heat(self):
+        st = wanted.update({"since": {"tv_ssh": T - 99999}}, {"tv_ssh": "The TV's SSH server is on"}, T)
+        self.assertEqual(st["stars"], 1)  # on for a day: still one star
+
     def test_cap(self):
         probs = {"disk:/": "full", "sata": "x", "backup": "y"}
         st = wanted.update({"since": {k: T - 99999 for k in probs}}, probs, T)
