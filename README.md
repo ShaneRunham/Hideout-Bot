@@ -1,6 +1,6 @@
 # 🤖 VICE Bot
 
-<img src="https://raw.githubusercontent.com/ShaneRunham/ShaneRunham/main/screens/vice-bot/status-top.jpg" alt="The live #status card" width="32%"> <img src="https://raw.githubusercontent.com/ShaneRunham/ShaneRunham/main/screens/vice-bot/status.jpg" alt="The #status card with its 24-hour graphs" width="32%"> <img src="https://raw.githubusercontent.com/ShaneRunham/ShaneRunham/main/screens/vice-bot/alerts.jpg" alt="Wanted Level cards in #alerts" width="32%">
+<img src="https://raw.githubusercontent.com/ShaneRunham/ShaneRunham/main/screens/vice-bot/status-card.jpg" alt="The live #status card, updated every minute, with 24-hour graphs" width="48%">
 
 A Discord bot for my homelab and my friends, written in Python with [discord.py](https://github.com/Rapptz/discord.py)
 and Discord's Components v2 cards. It's the part of the homelab that notices things: every minute it takes a
@@ -34,6 +34,8 @@ The bot builds and keeps the server's layout itself (`common.py` `LAYOUT`): cate
 - a problem left unfixed gains a star per full hour, at most two (`NO_HEAT` lists problems that never do)
 - three or more problems at once add one; the level is the worst, capped at 5
 - when it drops to zero the stars flash for about two minutes ("evading"); a problem back in that window restores its level quietly, so a flapping check doesn't spam; after that it's "Lost them"
+
+<img src="https://raw.githubusercontent.com/ShaneRunham/ShaneRunham/main/screens/vice-bot/lost-them.jpg" alt="The Lost them card in #alerts" width="48%">
 
 The level shows in #status's name, the bot's status line ("Wanted ★★☆☆☆ · Container radio is exited"), cards in
 #alerts, `/wanted`, Home Assistant (`sensor.wanted_level`), the TV, the dashboards and the phone remote.

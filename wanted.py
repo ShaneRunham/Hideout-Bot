@@ -98,7 +98,7 @@ def update(st: dict, problems: dict[str, str], now: float) -> dict:
     if stars != before or change or not st.get("history"):
         st["history"] = [h for h in st.get("history", []) if h[0] > now - KEEP] + [[now, stars]]
 
-    st.update(since=since, stars=stars, crimes=crimes, evading=lost["stars"] if lost else 0, change=change, fixed=fixed,
+    st.update(was=before, since=since, stars=stars, crimes=crimes, evading=lost["stars"] if lost else 0, change=change, fixed=fixed,
               updated=now)
     return st
 

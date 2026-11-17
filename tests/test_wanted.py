@@ -37,6 +37,12 @@ class Wanted(unittest.TestCase):
         st = wanted.update({"since": {"tv_ssh": T - 99999}}, {"tv_ssh": "The TV's SSH server is on"}, T)
         self.assertEqual(st["stars"], 1)  # on for a day: still one star
 
+    def test_was(self):
+        st = wanted.update({}, {"speed": "x"}, T)
+        self.assertEqual(st["was"], 0)  # the #alerts card says NOW WANTED, not HEAT RISING
+        st = wanted.update(st, {"speed": "x", "container:a": "y"}, T + 60)
+        self.assertEqual((st["was"], st["stars"], st["change"]), (1, 2, "up"))
+
     def test_cap(self):
         probs = {"disk:/": "full", "sata": "x", "backup": "y"}
         st = wanted.update({"since": {k: T - 99999 for k in probs}}, probs, T)
