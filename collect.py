@@ -108,6 +108,21 @@ def radio_stream() -> bool:
         return False
 
 
+FOOTBALL = "http://127.0.0.1:5405/api/football"
+FOOTBALL_MAX_AGE = 24 * 3600
+
+
+def football_age() -> float | None:
+    """Seconds since vice-football last got data from ESPN (it refreshes fixtures every 3 h); None if it isn't
+    answering (then the user-unit check reports it). 2026-11-17, ~/homelab/vice-football."""
+    try:
+        with urllib.request.urlopen(FOOTBALL, timeout=4) as r:
+            updated = json.load(r).get("updated")
+        return time.time() - updated if updated else float("inf")
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _speed():
     d = _json(SPEEDTEST, {"Accept": "application/json",
                           "Authorization": "Bearer " + os.environ.get("SPEEDTEST_API_TOKEN", "")})["data"]
@@ -122,7 +137,8 @@ def snapshot(extra: dict | None = None) -> dict:
     s = {"time": time.time(), "host": platform.node()}
     r = parallel({"cpu": lambda: psutil.cpu_percent(interval=0.5), "containers": _containers, "kuma": _kuma,
                   "tailscale": _tailscale, "units": _units, "speed": _speed, "sata_errors": sata_errors,
-                  "ci_failed": ci_failed, "expiries": expiries, "radio_stream": radio_stream, **(extra or {})})
+                  "ci_failed": ci_failed, "expiries": expiries, "radio_stream": radio_stream,
+                  "football_age": football_age, **(extra or {})})
     s["cpu"] = r.pop("cpu") or 0.0
     s["speed"], s["speed_slow"] = r.pop("speed") or (None, None)
     s["units"] = r.pop("units") or {}
@@ -176,7 +192,8 @@ USER_UNITS = {"vice-tv.service": "TV home service (vice-tv)", "couch-tv-bridge.s
               "pc-actions.service": "PC buttons for Home Assistant (pc-actions)",
               "jarvis-assist-tts.service": "JARVIS voice for Assist (jarvis-assist-tts)",
               "jarvis-assist-claude.service": "JARVIS Claude agent for Assist (jarvis-assist-claude)",
-              "syncthing.service": "PSP save sync with the tablet (Syncthing)"}
+              "syncthing.service": "PSP save sync with the tablet (Syncthing)",
+              "vice-football.service": "London/England scores (vice-football)"}
 
 
 def user_units() -> dict[str, bool]:
@@ -338,6 +355,10 @@ def problems(s: dict, hot_count: int = 0) -> dict[str, str]:
     for u, running in (s.get("user_units") or {}).items():
         if not running:
             p[f"user:{u}"] = f"{USER_UNITS.get(u, u)} has stopped (`systemctl --user restart {u}`)"
+    fa = s.get("football_age")
+    if fa is not None and fa > FOOTBALL_MAX_AGE and s.get("uptime", BOOT_GRACE) >= BOOT_GRACE:
+        p["football"] = ("Vice Football hasn't had data from ESPN for over a day (scores, TV cards). "
+                         "`journalctl --user -u vice-football`; ESPN may have changed its API")
     if s.get("psn_error"):
         p["psn"] = ("The PSN login in Home Assistant has stopped working. Renew it: sign in at playstation.com, open "
                     "ca.account.sony.com/api/v1/ssocookie and give Claude the npsso code (HA and ps5-mqtt use it)")

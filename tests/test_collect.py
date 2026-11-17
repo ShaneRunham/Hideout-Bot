@@ -40,6 +40,8 @@ class Problems(unittest.TestCase):
             "psn": bad(psn_error="401"),
             "user:vice-tv.service": bad(user_units={"vice-tv.service": False}),
             "user:syncthing.service": bad(user_units={"syncthing.service": False}),
+            "user:vice-football.service": bad(user_units={"vice-football.service": False}),
+            "football": bad(football_age=30 * 3600),
             "container:whisper": bad(containers={"whisper": ("running", "Up 3 hours (unhealthy)")}),
             "unit:homelab-scrub.service": bad(units={"homelab-scrub.service": "failed"}),
             "speed": bad(speed_slow=("120 Mbps", "20 Mbps")),
@@ -56,6 +58,10 @@ class Problems(unittest.TestCase):
         self.assertNotIn("expiry:x", collect.problems(bad(time=1e9, expiries=far)))
         gone = collect.problems(bad(time=1e9, expiries={"x": (1e9 - 86400, "Renew")}))
         self.assertTrue(gone["expiry:x"].startswith("x expired on "), gone)
+
+    def test_football_fresh_or_not_answering(self):
+        self.assertNotIn("football", collect.problems(bad(football_age=3 * 3600)))
+        self.assertNotIn("football", collect.problems(bad(football_age=None)))  # the unit check covers that
 
     def test_kuma_quiet_just_after_boot(self):
         self.assertNotIn("kuma", collect.problems(bad(kuma=None, uptime=60)))
