@@ -27,7 +27,7 @@ class RadioCard(cards.Card):
     Skip is the same as on the TV, so it skips there too."""
 
     def __init__(self, song: dict, thumb: str):
-        body = cards.text("-# 📻 VICE RADIO · ON AIR", f"## {song.get('title') or 'Vice Radio'}",
+        body = cards.text("-# 📻 HIDEOUT RADIO · ON AIR", f"## {song.get('title') or 'Hideout Radio'}",
                           song.get("artist") or "", f"-# {radio.source(song)}")
         super().__init__(cards.card(
             "accent", discord.ui.Section(body, accessory=discord.ui.Thumbnail(thumb)),
@@ -94,7 +94,7 @@ class JoinDecision(discord.ui.DynamicItem[discord.ui.Button], template=r"hb:join
             await member.add_roles(discord.utils.get(g.roles, name=CREW_ROLE), reason="Approved by Shane")
             outcome = "✅ Approved: they're in the Crew."
             try:  # a heads-up, if they accept DMs
-                await member.send("You're in! The gaming channels in Vice City HQ are open now.")
+                await member.send("You're in! The gaming channels in The Hideout are open now.")
             except discord.HTTPException:
                 pass
         else:
@@ -115,7 +115,7 @@ class WelcomeCard(discord.ui.LayoutView):
             cards.picture("attachment://welcome.png"),
             cards.text("Shane's server for gaming together.",
                        "🎮 **PS5 games** and ⛏️ **Minecraft**: text and voice channels",
-                       "📻 **Vice Radio**: an 80s station, played in voice with `/radio`",
+                       "📻 **Hideout Radio**: an 80s station, played in voice with `/radio`",
                        "-# Press the button to ask Shane to let you into the Crew and its gaming channels."),
             cards.row(cards.button("Let me in", self.join, "hb:join", cards.Style.success, emoji="🎮"))))
 

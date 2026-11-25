@@ -37,7 +37,7 @@ def type_text(text: str, enter: bool = False):
         for code in {c for c, _ in KEYS.values()} | {SHIFT, ENTER}:
             fcntl.ioctl(fd, UI_SET_KEYBIT, code)
         # struct uinput_user_dev: name[80], input_id (bustype, vendor, product, version), ff_effects_max, 4 x abs[64]
-        os.write(fd, struct.pack("80sHHHHi256i", b"VICE keyboard", 0x06, 0x1, 0x1, 1, 0, *[0] * 256))
+        os.write(fd, struct.pack("80sHHHHi256i", b"Hideout keyboard", 0x06, 0x1, 0x1, 1, 0, *[0] * 256))
         fcntl.ioctl(fd, UI_DEV_CREATE)
         time.sleep(0.5)  # give KWin time to pick up the new keyboard
 

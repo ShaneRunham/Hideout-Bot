@@ -1,4 +1,4 @@
-"""Vice Radio in Discord voice (/radio): the stream, what's playing, skip, and the album cover.
+"""Hideout Radio in Discord voice (/radio): the stream, what's playing, skip, and the album cover.
 The station itself is the `radio` container (~/homelab/radio/radio.liq)."""
 import hashlib
 import json
@@ -8,7 +8,7 @@ import urllib.request
 STREAM = "http://127.0.0.1:3004/vice-radio"  # the MP3 256 stream the TV plays (the FLAC mount at 256k sounded worse, 2026-11-16)
 NOW = "http://127.0.0.1:3005/now"    # JSON: src ("local" or a station), station, artist, title, album, dir
 SKIP = "http://127.0.0.1:3005/skip"  # POST: the same skip as the TV and the HA panel
-# 600 px album covers, made by vice-tv (~/tv-launcher/service/vice_tv.py radio_covers) for Vice Home and the HA panel
+# 600 px album covers, made by vice-tv (~/tv-launcher/service/vice_tv.py radio_covers) for Hideout Home and the HA panel
 COVERS = os.path.expanduser("~/homelab/home-assistant/config/www/vice-panel/radio")
 
 

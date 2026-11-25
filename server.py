@@ -144,7 +144,7 @@ class ServerMixin:
                        f"{ch('control')} buttons for the PC, phone camera, TV, PS5, PS3, the light and restarting a "
                        "service",
                        f"{ch('tv')} paste or share a YouTube link, or type a search, to play it on the TV",
-                       "`/playtime` PS5 play time this week · `/radio` Vice Radio in a voice channel",
+                       "`/playtime` PS5 play time this week · `/radio` Hideout Radio in a voice channel",
                        f"**The Crew** (Alex, Sam): newcomers see only {ch('welcome')}; **Let me in** sends you a "
                        f"request in {ch('logs')} to approve. The Crew sees GAMING, LOUNGE and {ch('crew_help')}, "
                        "and can use `/radio`",
@@ -268,14 +268,14 @@ class ServerMixin:
         return cards.card(
             "accent",
             cards.picture("attachment://crew-guide.png"),
-            cards.text("-# Everything you can do here. Shane runs the server and the VICE bot."),
+            cards.text("-# Everything you can do here. Shane runs the server and the Hideout bot."),
             cards.divider(),
             cards.text("### 🎮 Gaming",
                        f"{ch('online')} who's on PSN and Switch right now and what they're playing",
                        f"{ch('ps5')} · {ch('switch')} · {ch('minecraft')} chat; when anyone starts a game, a card shows up in the "
                        "game's channel and says how long they played when they stop",
                        f"{ch('party')} · {ch('mc_voice')} voice channels for playing together"),
-            cards.text("### 📻 Vice Radio",
+            cards.text("### 📻 Hideout Radio",
                        "`/radio` plays Shane's 80s station in the voice channel you're in "
                        f"(or in {ch('radio')}); the song shows under the channel's name",
                        "`/radio` › **Skip** or **Stop**, or the buttons on the radio card in the voice chat. "

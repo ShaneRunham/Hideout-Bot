@@ -5,8 +5,8 @@ fixed query ids taken from the site's own requests). Plain GET requests, nothing
 If Rockstar changes those ids the fetch fails, the last good file stays, and the bot logs a warning: copy the new
 ids from the site's network requests (operationName NewswireList / NewswirePost) into LIST_ID / POST_ID.
 
-bot.py calls update() every 3 hours. It writes FEED, which the HA Vice panel reads at /local/vice-panel/gta6.json and
-vice-tv serves to Vice Home at /api/gta6. Images and videos stay on Rockstar's and YouTube's servers."""
+bot.py calls update() every 3 hours. It writes FEED, which the HA Hideout panel reads at /local/vice-panel/gta6.json and
+vice-tv serves to Hideout Home at /api/gta6. Images and videos stay on Rockstar's and YouTube's servers."""
 import datetime
 import json
 import os

@@ -7,7 +7,7 @@ inside that window restores its level without a new alert. The state lives in wa
 git): when each problem started, the clean streak and its record, and the level changes of the last 8 days.
 
 Shown on: #status's name and the bot's presence (status.py), cards in #alerts, /wanted (commands.py), Home Assistant's
-sensor.wanted_level (from homelab-state.json) -> phone, TV OSD cards, Vice panel and Vice Home (vice-tv /api/status).
+sensor.wanted_level (from homelab-state.json) -> phone, TV OSD cards, Hideout panel and Hideout Home (vice-tv /api/status).
 """
 from __future__ import annotations
 
@@ -104,7 +104,7 @@ def update(st: dict, problems: dict[str, str], now: float) -> dict:
 
 
 def for_ha(st: dict) -> dict:
-    """What goes into homelab-state.json for HA, the Vice panel and Vice Home."""
+    """What goes into homelab-state.json for HA, the Hideout panel and Hideout Home."""
     return {k: st.get(k) for k in ("stars", "evading", "evaded", "change", "clean_since", "best_clean")} | {
         "crimes": [{"key": c["key"], "what": c["what"], "stars": c["stars"], "since": c["since"]} for c in st.get("crimes", [])]}
 

@@ -99,7 +99,7 @@ RADIO_STREAM = "http://127.0.0.1:3004/vice-radio"
 
 
 def radio_stream() -> bool:
-    """Is Vice Radio serving its stream? Liquidsoap sometimes comes up playing but without the stream's web handler
+    """Is Hideout Radio serving its stream? Liquidsoap sometimes comes up playing but without the stream's web handler
     (a 404 or a dropped connection on /vice-radio), and Uptime Kuma only watches /now, which stays up (2026-11-16)."""
     try:
         with urllib.request.urlopen(RADIO_STREAM, timeout=4) as r:
@@ -357,13 +357,13 @@ def problems(s: dict, hot_count: int = 0) -> dict[str, str]:
             p[f"user:{u}"] = f"{USER_UNITS.get(u, u)} has stopped (`systemctl --user restart {u}`)"
     fa = s.get("football_age")
     if fa is not None and fa > FOOTBALL_MAX_AGE and s.get("uptime", BOOT_GRACE) >= BOOT_GRACE:
-        p["football"] = ("Vice Football hasn't had data from ESPN for over a day (scores, TV cards). "
+        p["football"] = ("The football feed hasn't had data from ESPN for over a day (scores, TV cards). "
                          "`journalctl --user -u vice-football`; ESPN may have changed its API")
     if s.get("psn_error"):
         p["psn"] = ("The PSN login in Home Assistant has stopped working. Renew it: sign in at playstation.com, open "
                     "ca.account.sony.com/api/v1/ssocookie and give Claude the npsso code (HA and ps5-mqtt use it)")
     if s.get("radio_down", 0) >= 5:
-        p["radio"] = ("Vice Radio isn't serving its stream (TV and Discord radio are silent), and restarting it didn't "
+        p["radio"] = ("Hideout Radio isn't serving its stream (TV and Discord radio are silent), and restarting it didn't "
                       "help. Try #control › Restart a service › radio, or check `docker logs radio`")
     if s.get("ps3_nohen", 0) >= 3:
         p["ps3_hen"] = "The PS3 is on without HEN. Select Enable HEN on the XMB"

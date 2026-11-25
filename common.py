@@ -31,16 +31,16 @@ PIXEL_KDECONNECT = "00000000000000000000000000000000"  # Pixel 9 Pro XL in `kdec
 # Channel list (Shane's pick 2026-11-16): grouped by what he does there, an icon and a divider per channel.
 # Categories and channels are tracked by ID (state.json "categories"/"channels"), so names, groups and order can
 # change freely: every start renames, regroups and reorders to match this. #status's icon and name follow the
-# health (apply_look). The Vice Radio voice channel (key "radio") is made by /radio the first time.
+# health (apply_look). The Hideout Radio voice channel (key "radio") is made by /radio the first time.
 LAYOUT = [  # (category key, category name, [(channel key, channel name, topic)])
     # Order set by Shane by hand in Discord (2026-11-16): HELP, WELCOME, LOUNGE, GAMING, then his private ones
     ("help", "── HELP ──", [
         ("crew_help", "❓┃crew-guide", "What you can do here: the channels, /radio and a couple of tips"),
-        ("commands", "📖┃commands", "Everything VICE can do, in one pinned message")]),
+        ("commands", "📖┃commands", "Everything Hideout can do, in one pinned message")]),
     # WELCOME is the only thing a newcomer sees: read-only, with a "Let me in" button that gives the Crew role
     ("welcome", "── WELCOME ──", [
         ("welcome", "🚪┃welcome", "Start here: press Let me in on the card below")]),
-    ("lounge", "── LOUNGE ──", [  # and the Vice Radio voice channel
+    ("lounge", "── LOUNGE ──", [  # and the Hideout Radio voice channel
         ("crew_general", "💬┃general", "Chat for everyone here")]),
     # GAMING and LOUNGE are open to the Crew role (Shane's friend and partner, 2026-11-16); everything else stays
     # private to Shane and the bot. Their voice channels are in VOICE.
@@ -65,7 +65,7 @@ LAYOUT = [  # (category key, category name, [(channel key, channel name, topic)]
         ("notes", "📝┃notes", "Notes to self"),
         ("gta6", "🌴┃gta6", "Rockstar Newswire's GTA VI posts, with pictures and videos")]),
 ]
-RADIO_NAME = "📻 Vice Radio"
+RADIO_NAME = "📻 Hideout Radio"
 VOICE = {"gaming": [("party", "🎮 Party"), ("mc_voice", "⛏️ Minecraft")]}  # category -> [(key, voice channel name)]
 CREW_ROLE = "Crew"  # Shane gives it to his friend and partner (tap their name › Roles)
 CREW_CATEGORIES = ("gaming", "lounge")
@@ -76,9 +76,9 @@ PSN_ME = "MyPSNName"  # Shane's PSN account (listed first on #online)
 PSN_NAMES = {PSN_ME: "Shane", "FriendPSN1": "Alex", "FriendPSN2": "Sam"}  # PSN name -> what #online shows  # everyone in the server can read these (nobody but Shane and the bot can post)
 SWITCH_NAMES: dict[str, str] = {}  # Nintendo nickname -> name on the cards (friends of the bot's Nintendo account)
 OLD_CATEGORIES = {"live": "Homelab", "personal": "Personal"}  # adopted by name before categories had keys
-THEME = {"green": 0x7EE2A8, "gold": 0xFFC56B, "red": 0xFF8A7A, "accent": 0xC77DBA}  # the lights of the TV home
-SERVER_NAME = "Vice City HQ"
-BOT_NAME = "VICE"
+THEME = {"green": 0x7EE2A8, "gold": 0xFFC56B, "red": 0xFF8A7A, "accent": 0xC9CDD4}  # the lights of the TV home; accent graphite-white (was orchid, 2026-11-25)
+SERVER_NAME = "The Hideout"
+BOT_NAME = "Hideout"
 ABOUT = ("Shane's homelab, on fedora. Watches the PC, the containers and the backups, and says so when "
          "something's wrong. Claude lives in #claude.")
 CLAUDE_INTRO = ("Type here and Claude answers, on your Claude plan. It can run commands and change files on fedora, "
@@ -87,8 +87,8 @@ CLAUDE_INTRO = ("Type here and Claude answers, on your Claude plan. It can run c
 BOSS_ROLE = "Boss"
 BOSS_COLOUR = THEME["gold"]  # Shane's pick (2026-11-12): a colour apart from the bot's own accent-coloured role
 OLD_BOSS_ROLES = ("👑 Boss",)  # what the role was called before; renamed on sight
-ICON = os.path.join(HERE, "assets", "icon.png")  # the bot's avatar: official Beach artwork
-SERVER_ICON = os.path.join(HERE, "assets", "server-icon.png")  # the duotone Vice badge (make_badge.py)
+ICON = os.path.join(HERE, "assets", "icon.png")  # the bot's avatar: the Hideout doorway (make_art.py)
+SERVER_ICON = os.path.join(HERE, "assets", "server-icon.png")  # the Hideout doorway (make_art.py)
 BANNER = os.path.join(HERE, "assets", "banner.png")
 CONTROL_ART = os.path.join(HERE, "assets", "control.png")
 CLAUDE_ART = os.path.join(HERE, "assets", "claude.png")

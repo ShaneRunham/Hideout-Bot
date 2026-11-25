@@ -397,7 +397,7 @@ async def wanted_cmd(interaction: discord.Interaction):
                                                                        *items)), ephemeral=True)
 
 
-@app_commands.command(name="radio", description="Vice Radio in your voice channel (or the Vice Radio one): play, skip or stop")
+@app_commands.command(name="radio", description="Hideout Radio in your voice channel (or the Hideout Radio one): play, skip or stop")
 @app_commands.choices(action=[app_commands.Choice(name="Play", value="play"),
                               app_commands.Choice(name="Skip", value="skip"),
                               app_commands.Choice(name="Stop", value="stop")])
@@ -414,12 +414,12 @@ async def radio_cmd(interaction: discord.Interaction, action: str = "play"):
         return
     if action == "stop":
         await bot.radio_stop()
-        await interaction.followup.send("Vice Radio is off.", ephemeral=True)
+        await interaction.followup.send("Hideout Radio is off.", ephemeral=True)
         return
     member = bot.guild.get_member(interaction.user.id)
     channel = member.voice.channel if member and member.voice and member.voice.channel else await bot.radio_channel()
     await bot.radio_start(channel)
-    await interaction.followup.send(f"Vice Radio is on in {channel.mention}. It leaves by itself under a minute after "
+    await interaction.followup.send(f"Hideout Radio is on in {channel.mention}. It leaves by itself under a minute after "
                                     "everyone else does, and clears its messages.", ephemeral=True)
 
 

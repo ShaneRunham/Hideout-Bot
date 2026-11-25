@@ -1,5 +1,5 @@
 """#gta6: Rockstar Newswire's own GTA VI posts, with the post's picture (Shane's choice, 2026-11-12; it was Google News
-until then). The posts come from rockstar_news.py (same feed as Vice Home and the HA panel); this only decides which
+until then). The posts come from rockstar_news.py (same feed as Hideout Home and the HA panel); this only decides which
 ones are new for Discord. State: the post ids already posted, in gta6-state.json."""
 import json
 import os

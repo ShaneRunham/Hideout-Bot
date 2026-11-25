@@ -1,4 +1,4 @@
-"""/radio: Vice Radio in a voice channel, with a now-playing card (radio.py has the station side)."""
+"""/radio: Hideout Radio in a voice channel, with a now-playing card (radio.py has the station side)."""
 from __future__ import annotations
 
 import asyncio
@@ -15,9 +15,9 @@ from views import RadioCard
 
 class RadioMixin:
 
-    # ---------- /radio: Vice Radio in a voice channel (radio.py) ----------
+    # ---------- /radio: Hideout Radio in a voice channel (radio.py) ----------
     async def radio_channel(self) -> discord.VoiceChannel:
-        """The Vice Radio voice channel in Lounge (private like the rest), made the first time it's needed."""
+        """The Hideout Radio voice channel in Lounge (private like the rest), made the first time it's needed."""
         chans = self.state.setdefault("channels", {})
         c = self.guild.get_channel(chans.get("radio", 0))
         if not c:
@@ -65,7 +65,7 @@ class RadioMixin:
         """The stream stopped while still in the channel (radio container restarted?): try again in 10 s."""
         if not vc.is_connected():
             return  # /radio stop
-        log.warning("Vice Radio stream ended (%s), restarting it in 10 s", err or "no error")
+        log.warning("Hideout Radio stream ended (%s), restarting it in 10 s", err or "no error")
         self.loop.call_later(10, lambda: vc.is_connected() and not vc.is_playing() and self.radio_play(vc))
 
     async def radio_stop(self, why: str = "Stopped"):
@@ -74,7 +74,7 @@ class RadioMixin:
         channel = vc.channel if vc else self.radio_msg.channel if self.radio_msg else None
         if vc:
             await vc.disconnect()
-        log.info("Vice Radio off: %s", why)
+        log.info("Hideout Radio off: %s", why)
         self.radio_tick.stop()  # not cancel(): this runs inside the loop too, and the cleanup below must finish
         if channel:
             async with self.radio_lock:
@@ -92,7 +92,7 @@ class RadioMixin:
                 if m.author == self.user:
                     await m.delete()
         except discord.HTTPException as e:
-            log.warning("Couldn't clear the Vice Radio messages: %s", e)
+            log.warning("Couldn't clear the Hideout Radio messages: %s", e)
 
     async def radio_card(self):
         """Post the now-playing card in the voice channel's chat, or edit it when the song changes. One at a time:
@@ -107,14 +107,14 @@ class RadioMixin:
         try:
             song = await asyncio.to_thread(radio.now)
         except Exception as e:  # noqa: BLE001  (radio container down: the card waits)
-            log.warning("Vice Radio now-playing failed: %s", e)
+            log.warning("Hideout Radio now-playing failed: %s", e)
             return
         key = (song.get("artist"), song.get("title"), song.get("station"))
         if key == self.radio_song and self.radio_msg:
             return
         self.radio_song = key
         # the song under the voice channel's name too, so people in voice see it without opening the chat
-        title = " · ".join(x for x in (song.get("title"), song.get("artist")) if x) or "Vice Radio"
+        title = " · ".join(x for x in (song.get("title"), song.get("artist")) if x) or "Hideout Radio"
         try:
             await vc.channel.edit(status=f"📻 {title}"[:500])
         except discord.HTTPException as e:

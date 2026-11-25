@@ -46,7 +46,7 @@ PS5_COVERS = os.path.expanduser("~/homelab/home-assistant/config/www/vice-panel/
 
 
 def ps5_cover(game: str) -> str | None:
-    """The game's art HA saved for the Vice panel (covers/ps5-<slug>.png), if there is one. GTA VI's (Rockstar's
+    """The game's art HA saved for the Hideout panel (covers/ps5-<slug>.png), if there is one. GTA VI's (Rockstar's
     launch art, placed 2026-11-16 for launch day) is found under any spelling PSN might use."""
     slug = re.sub(r"[^a-z0-9]+", "-", game.lower()).strip("-")[:60]
     if re.search(r"\b(grand theft auto|gta) ?(vi|6)\b", game, re.I):
@@ -153,7 +153,7 @@ class StatusMixin:
                         allowed_mentions=discord.AllowedMentions(users=True))
             except discord.HTTPException as e:
                 log.warning("Couldn't post a reminder: %s", e)
-            # a Vice OSD card through HA (script.vice_osd): on the TV (over anything) and the Vice panel
+            # a Vice OSD card through HA (script.vice_osd): on the TV (over anything) and the Hideout panel
             card = {"title": r["text"], "line": "Reminder", "em": "from the bot",
                     "sub": f"Set {set_at.strftime('%a %H:%M')}", "icon": "bell", "ttl": 15}
             try:
@@ -164,7 +164,7 @@ class StatusMixin:
     # ---------- every 3 hours: GTA VI news (gta6.py) ----------
     @tasks.loop(hours=3)
     async def gta_news(self):
-        # Rockstar's own GTA VI posts with photos and videos (rockstar_news.py): the file Vice Home and the HA panel
+        # Rockstar's own GTA VI posts with photos and videos (rockstar_news.py): the file Hideout Home and the HA panel
         # read, then new posts in #gta6 with their picture, and a pop-up on the TV while it's on
         try:
             items = await asyncio.to_thread(rockstar_news.update)
@@ -262,7 +262,7 @@ class StatusMixin:
         self.state["online_psn_live"] = any(f["game"] or f["status"] != "offline" for f in friends)
         await self.online_card()
         # the Crew's games: the same cards as Shane's (game_session), with the cover PSN shows for their game when
-        # Shane hasn't played it (saved where HA keeps his, so the Vice panel can use it too)
+        # Shane hasn't played it (saved where HA keeps his, so the Hideout panel can use it too)
         for f in friends:
             if f["name"] == PSN_ME:
                 continue
@@ -350,17 +350,17 @@ class StatusMixin:
             save_state(self.state)
 
     async def heal_radio(self, s: dict):
-        """Vice Radio up but not serving its stream (see collect.radio_stream): after 2 minutes restart the container
+        """Hideout Radio up but not serving its stream (see collect.radio_stream): after 2 minutes restart the container
         (a restart fixed it every time), at most every 10 minutes; after 5 minutes it's a problem for HA."""
         running = (s.get("containers") or {}).get("radio", ("",))[0] == "running"
         down = getattr(self, "radio_down", 0)
         self.radio_down = s["radio_down"] = down + 1 if running and s.get("radio_stream") is False else 0
         if self.radio_down >= 2 and time.time() - getattr(self, "radio_healed", 0.0) > 600:
             self.radio_healed = time.time()
-            log.warning("Vice Radio isn't serving its stream: restarting the radio container")
+            log.warning("Hideout Radio isn't serving its stream: restarting the radio container")
             code, out = await run("docker", "restart", "radio", timeout=60)
             try:  # Discord may be the thing that's down: never let the note stop the minute loop
-                await self.post("logs", "Vice Radio wasn't serving its stream: restarted the radio container"
+                await self.post("logs", "Hideout Radio wasn't serving its stream: restarted the radio container"
                                 + ("" if code == 0 else f" (failed: {out[-200:]})"))
             except Exception as e:  # noqa: BLE001
                 log.warning("Couldn't note the radio restart: %s", e)
