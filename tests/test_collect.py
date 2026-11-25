@@ -114,3 +114,17 @@ class Problems(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SpeedLine(unittest.TestCase):  # 2026-11-25: a failed test used to read "no speed test yet"
+    def text(self, s):
+        return repr(collect.status_parts(s, {}))
+
+    def test_failed(self):
+        t = self.text(bad(speed=("failed", "18:15")))
+        self.assertIn("the last speed test failed (18:15)", t)
+        self.assertNotIn("no speed test yet", t)
+
+    def test_ok_and_none(self):
+        self.assertIn("933 Mbps down", self.text(GOOD))
+        self.assertIn("no speed test yet", self.text(bad(speed=None)))

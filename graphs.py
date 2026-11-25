@@ -16,12 +16,12 @@ from matplotlib import font_manager  # noqa: E402
 
 KEEP = 24 * 60
 NICS = ("enp2s0", "wlp3s0")
-# The TV home's look: its typeface, white on dusk, colours sampled from the GTA VI wallpaper
+# The TV home's look (graphite since 2026-11-25; was dusk purple with GTA VI colours): its typeface, white on graphite
 FONT = "/usr/share/fonts/adwaita-sans-fonts/AdwaitaSans-Regular.ttf"
 font_manager.fontManager.addfont(FONT)
 plt.rcParams["font.family"] = font_manager.FontProperties(fname=FONT).get_name()
-BG, GRID, TEXT, DIM = "#15111d", "#2a2435", "#f2eff6", "#a9a2b4"
-INDIGO, PINK, PEACH, WHITE, LILAC = "#8f9bf0", "#e07fb6", "#f5b97a", "#f2eff6", "#8d84a6"
+BG, GRID, TEXT, DIM = "#141518", "#26282c", "#f2f2f2", "#9a9ca3"
+INDIGO, PINK, PEACH, WHITE, LILAC = "#8fb4ff", "#7ee2a8", "#ffc56b", "#f2f2f2", "#c9cdd4"  # line colours: the TV's status lights
 
 
 class History:

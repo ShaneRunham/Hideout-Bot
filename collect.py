@@ -126,6 +126,8 @@ def football_age() -> float | None:
 def _speed():
     d = _json(SPEEDTEST, {"Accept": "application/json",
                           "Authorization": "Bearer " + os.environ.get("SPEEDTEST_API_TOKEN", "")})["data"]
+    if d.get("status") == "failed":  # the last scheduled test couldn't connect (it showed as "no speed test yet")
+        return (("failed", (d.get("created_at") or "")[11:16]), None)
     # Speedtest Tracker marks a result unhealthy when it misses its thresholds (download 500, upload 50 Mbps)
     return ((d["download_bits_human"], d["upload_bits_human"], d["ping"]),
             (d["download_bits_human"], d["upload_bits_human"]) if d.get("healthy") is False else None)
@@ -462,8 +464,10 @@ def status_parts(s: dict, probs: dict, emoji: dict | None = None) -> dict:
     for m, d in s["disks"].items():
         pc.append(f"**{labels.get(m, m)}** " + (f"{mark(d[0], 75, 90)}{d[0]:.0f}% · {gb(d[2] - d[1])} GB free"
                                                 if d else f"{bad_} not mounted"))
-    pc.append(f"**Internet** {s['speed'][0]} down · {s['speed'][1]} up · {s['speed'][2]:.0f} ms"
-              if s.get("speed") else "**Internet** no speed test yet")
+    sp = s.get("speed")
+    pc.append("**Internet** no speed test yet" if not sp
+              else f"**Internet** the last speed test failed ({sp[1]}), the next runs within 6 hours" if sp[0] == "failed"
+              else f"**Internet** {sp[0]} down · {sp[1]} up · {sp[2]:.0f} ms")
     sections = [("PC", "\n".join(pc))]
 
     if "ps5" in s:
@@ -556,7 +560,7 @@ def morning_text(s: dict, probs: dict) -> str:
                  + ("" if not s["units"] else " · " + ", ".join(
                      f"{u.removeprefix('homelab-').removesuffix('.service')} {'ok' if st == 'ok' else '**failed**'}"
                      for u, st in s["units"].items())))
-    if s.get("speed"):
+    if s.get("speed") and s["speed"][0] != "failed":
         lines.append(f"**Internet** {s['speed'][0]} down, {s['speed'][1]} up, {s['speed'][2]:.0f} ms")
     try:
         ps3 = json.load(open(os.path.expanduser("~/homelab/ps3-backup/last-run.json")))
