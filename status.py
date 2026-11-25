@@ -433,7 +433,7 @@ class StatusMixin:
             act = discord.Game(f"{s['ps3_game']} on PS3")
         elif colour != "red" and s.get("streaming"):
             act = discord.Game("on the PC with Moonlight")
-        elif colour != "red" and tv.get("power") == "on" and tv.get("app") and tv["app"] not in ("Vice Home", "Home Hub", "LG home", "Hearth"):
+        elif colour != "red" and tv.get("power") == "on" and tv.get("app") and tv["app"] not in ("Hideout Home", "Vice Home", "Home Hub", "LG home", "Hearth"):
             act = discord.Activity(type=discord.ActivityType.watching, name=tv["app"] + (f" · {tv['playing']}" if tv.get("playing") else ""))
         elif self.wanted.get("stars"):  # Wanted ★★★ · Container radio is exited
             w = self.wanted

@@ -317,7 +317,7 @@ class TVPanel(OwnerView):
 
     @discord.ui.select(placeholder="Switch to…", row=2, options=[
         discord.SelectOption(label=n, value=v) for n, v in (
-            ("Vice Home", "app.couchtv.home"), ("PS5 (HDMI 1)", "com.webos.app.hdmi1"),
+            ("Hideout Home", "app.couchtv.home"), ("PS5 (HDMI 1)", "com.webos.app.hdmi1"),
             ("Switch (HDMI 2)", "com.webos.app.hdmi2"), ("Sky Box (HDMI 4)", "com.webos.app.hdmi4"),
             ("YouTube", "youtube.leanback.v4"), ("Netflix", "netflix"), ("Kodi", "org.xbmc.kodi"),
             ("Moonlight", "com.limelight.webos"))])

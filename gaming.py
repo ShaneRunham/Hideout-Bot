@@ -225,7 +225,7 @@ def tv_now() -> dict | None:
     if app.get("package") == "tld.my.customlauncher":
         name = "Hearth"
     if app.get("package", "").startswith("app.couchtv."):
-        name = "Vice Home"
+        name = "Hideout Home"
     playing = d.get("playing")
     title = (playing.get("title") or playing.get("name")) if isinstance(playing, dict) else None
     return {"power": d.get("power"), "app": name, "playing": title}
