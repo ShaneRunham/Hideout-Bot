@@ -391,7 +391,12 @@ class ConfirmRestart(OwnerView):
         # KDE's own logout-and-restart closes apps cleanly; without a desktop session, a plain reboot
         code, out = await run("qdbus", "org.kde.Shutdown", "/Shutdown", "org.kde.Shutdown.logoutAndReboot",
                               timeout=20)
-        if code != 0:
+        if code == 0:
+            # KDE's logout can hang on an app's "save changes?" box nobody sees (2026-11-26), so force it after 90 s.
+            # A clean restart stops this timer with the user manager.
+            await run("systemd-run", "--user", "--collect", "--unit=homelab-bot-reboot-backstop", "--on-active=90",
+                      "systemctl", "reboot", timeout=20)
+        else:
             code, out = await run("systemctl", "reboot", timeout=20)
         if code != 0:
             await interaction.followup.send(f"Couldn't restart: {out[-500:]}", ephemeral=True)
