@@ -378,7 +378,7 @@ async def wanted_cmd(interaction: discord.Interaction):
     stars, crimes = w.get("stars", 0), w.get("crimes", [])
     if stars:
         items = [cards.header(wanted.stars_text(stars), f"Wanted · {len(crimes)} on the rap sheet"), cards.divider(),
-                 cards.text(*(f"{'★' * c['stars']}{'☆' * (5 - c['stars'])}  **{c['what']}** · since <t:{int(c['since'])}:R>"
+                 cards.text(*(f"★  **{c['what']}** · since <t:{int(c['since'])}:R>"
                               for c in crimes[:15]))]
     else:
         clean = now - w.get("clean_since", now)

@@ -495,7 +495,7 @@ class StatusMixin:
             # from zero it's a new wanted level; from one or more stars it's heat rising (or dropping)
             what = ("NOW WANTED" if not w.get("was") else "HEAT RISING") if up else "HEAT DROPPING"
             body = [f"-# ⭐ WANTED LEVEL · {what}", f"## {wanted.stars_text(stars)}",
-                    *(f"{'★' * c['stars']} {c['what']} · since <t:{int(c['since'])}:R>" for c in crimes[:8]),
+                    *(f"★ {c['what']} · since <t:{int(c['since'])}:R>" for c in crimes[:8]),
                     *(f"✓ Fixed: {f}" for f in w.get("fixed", [])[:5])]
             colour = "red" if stars >= 3 else "gold"
         await self.post("alerts", view=cards.Card(cards.card(colour, cards.text(*body))))

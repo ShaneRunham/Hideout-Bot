@@ -9,33 +9,24 @@ T = 1_800_000_000.0
 
 
 class Wanted(unittest.TestCase):
-    def test_weights(self):
-        self.assertEqual(wanted.weight("disk:/mnt/storage"), 3)
-        self.assertEqual(wanted.weight("container:radio"), 2)
-        self.assertEqual(wanted.weight("kuma"), 2)
-        self.assertEqual(wanted.weight("kuma:Jellyfin"), 2)
-        self.assertEqual(wanted.weight("speed"), 1)
-        self.assertEqual(wanted.weight("expiry:PSN", "PSN expires in 5 days (20 Nov). Renew"), 1)
-        self.assertEqual(wanted.weight("expiry:PSN", "PSN expired on 10 Nov. Renew"), 3)
-
     def test_clean(self):
         st = wanted.update({}, {}, T)
         self.assertEqual((st["stars"], st["change"], st["evading"]), (0, None, 0))
         self.assertEqual(st["clean_since"], T)
 
-    def test_up_heat_and_crowd(self):
+    def test_one_star_per_problem_no_heat(self):
         st = wanted.update({}, {"speed": "Internet is slow"}, T)
         self.assertEqual((st["stars"], st["change"]), (1, "up"))
-        st = wanted.update(st, {"speed": "Internet is slow"}, T + 3600)  # an hour unfixed: +1
-        self.assertEqual((st["stars"], st["change"]), (2, "up"))
-        st = wanted.update(st, {"speed": "x", "ram": "y", "container:a": "Container `a` is exited (Exited (1))"}, T + 3660)
-        self.assertEqual(st["stars"], 3)  # worst is 2 (speed with heat, or the container), +1 for three problems
-        self.assertEqual(st["crimes"][0]["key"], "speed")  # same stars: the oldest first
-        self.assertEqual(st["crimes"][1]["what"], "Container a is exited")
-
-    def test_no_heat(self):
-        st = wanted.update({"since": {"tv_ssh": T - 99999}}, {"tv_ssh": "The TV's SSH server is on"}, T)
-        self.assertEqual(st["stars"], 1)  # on for a day: still one star
+        st = wanted.update(st, {"speed": "Internet is slow"}, T + 86400)  # a day unfixed: still one star
+        self.assertEqual((st["stars"], st["change"]), (1, None))
+        st = wanted.update(st, {"speed": "x", "disk:/": "full", "container:a": "Container `a` is exited (Exited (1))"},
+                           T + 86460)
+        self.assertEqual((st["stars"], st["change"]), (3, "up"))  # three problems, three stars, whatever they are
+        self.assertEqual([c["stars"] for c in st["crimes"]], [1, 1, 1])
+        self.assertEqual(st["crimes"][0]["key"], "speed")  # oldest first
+        self.assertEqual(st["crimes"][2]["what"], "Container a is exited")
+        st = wanted.update(st, {"speed": "x", "container:a": "y"}, T + 86520)  # one fixed: one star off
+        self.assertEqual((st["stars"], st["change"], st["fixed"]), (2, "down", ["full"]))
 
     def test_was(self):
         st = wanted.update({}, {"speed": "x"}, T)
@@ -44,19 +35,19 @@ class Wanted(unittest.TestCase):
         self.assertEqual((st["was"], st["stars"], st["change"]), (1, 2, "up"))
 
     def test_cap(self):
-        probs = {"disk:/": "full", "sata": "x", "backup": "y"}
-        st = wanted.update({"since": {k: T - 99999 for k in probs}}, probs, T)
-        self.assertEqual(st["stars"], 5)
+        st = wanted.update({}, {f"p{i}": "x" for i in range(9)}, T)
+        self.assertEqual(st["stars"], 6)
+        self.assertEqual(wanted.stars_text(2), "★★☆☆☆☆")
 
     def test_evade_and_caught_again(self):
         st = wanted.update({}, {"container:a": "down"}, T)
         st = wanted.update(st, {}, T + 60)
-        self.assertEqual((st["stars"], st["change"], st["evading"]), (0, "evading", 2))
+        self.assertEqual((st["stars"], st["change"], st["evading"]), (0, "evading", 1))
         self.assertEqual(st["fixed"], ["down"])
         st = wanted.update(st, {}, T + 120)
-        self.assertEqual((st["evading"], st["change"]), (2, None))  # still flashing (EVADE 110 s)
+        self.assertEqual((st["evading"], st["change"]), (1, None))  # still flashing (EVADE 110 s)
         st = wanted.update(st, {}, T + 200)
-        self.assertEqual((st["evading"], st["change"], st["evaded"]), (0, "clear", 2))
+        self.assertEqual((st["evading"], st["change"], st["evaded"]), (0, "clear", 1))
         self.assertEqual(st["clean_since"], T + 200)
         st = wanted.update(st, {}, T + 260)
         self.assertIsNone(st["change"])
@@ -65,11 +56,11 @@ class Wanted(unittest.TestCase):
         st = wanted.update({}, {"container:a": "down"}, T)
         st = wanted.update(st, {}, T + 60)
         st = wanted.update(st, {"container:a": "down"}, T + 90)  # back while evading: same level, no alert
-        self.assertEqual((st["stars"], st["evading"], st["change"]), (2, 0, None))
+        self.assertEqual((st["stars"], st["evading"], st["change"]), (1, 0, None))
         self.assertNotIn("lost", st)
         st = wanted.update(st, {}, T + 150)
-        st = wanted.update(st, {"disk:/": "full"}, T + 180)  # worse while evading: that's news
-        self.assertEqual((st["stars"], st["change"]), (3, "up"))
+        st = wanted.update(st, {"disk:/": "full", "sata": "x"}, T + 180)  # worse while evading: that's news
+        self.assertEqual((st["stars"], st["change"]), (2, "up"))
 
     def test_streak(self):
         st = wanted.update({}, {}, T)

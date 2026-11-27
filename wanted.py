@@ -1,7 +1,7 @@
-"""Wanted Level (2026-11-16): the homelab's health as 0-5 stars, worked out every minute from collect.problems().
+"""Wanted Level (2026-11-16): the homelab's health as 0-6 stars, worked out every minute from collect.problems().
 
-Each problem is worth 1-3 stars (WEIGHTS); one left unfixed gains a star per full hour (at most +2), and three or more
-problems at once add one more. The level is the worst problem's stars, capped at 5. When the level drops to 0 the
+Since 2026-11-27 (Shane): each problem is one star and stays until it's fixed, so the level is simply the number of
+problems, capped at MAX (6). No weights, no extra stars for time unfixed. When the level drops to 0 the
 displays "evade" for EVADE seconds (the last level flashes); only then is it clear ("Lost them"). A problem back
 inside that window restores its level without a new alert. The state lives in wanted.json (not in
 git): when each problem started, the clean streak and its record, and the level changes of the last 8 days.
@@ -17,27 +17,8 @@ import re
 
 FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wanted.json")
 EVADE = 110  # s: two minute ticks, so HA (it reads every minute) always sees it
-HEAT_EVERY = 3600  # s unfixed per extra star
-HEAT_MAX = 2
+MAX = 6  # stars shown everywhere (the HA panel, map, TV and phone draw six too)
 KEEP = 8 * 86400  # history kept for /wanted's week
-
-# Problems that never gain heat: left on on purpose while working on something (Shane, 2026-11-17)
-NO_HEAT = {"tv_ssh"}
-# key (or key prefix ending in ":") -> stars. Anything not listed is 1.
-WEIGHTS = {
-    "disk:": 3, "sata": 3, "docker": 3, "backup": 3, "heartbeat": 3,
-    "container:": 2, "user:": 2, "unit:": 2, "kuma": 2, "kuma:": 2, "tailscale": 2, "radio": 2, "temp": 2,
-    "update_snapshot": 2,
-}
-
-
-def weight(key: str, msg: str = "") -> int:
-    if key.startswith("expiry:"):
-        return 3 if " expired on " in msg else 1
-    for k, w in WEIGHTS.items():
-        if key == k or (k.endswith(":") and key.startswith(k)):
-            return w
-    return 1
 
 
 def short(msg: str) -> str:
@@ -64,18 +45,16 @@ def save(st: dict):
 
 def update(st: dict, problems: dict[str, str], now: float) -> dict:
     """Work out this minute's level from the problems and the saved state (changed in place, also returned).
-    st gains: stars, crimes (worst first), fixed (this minute's problems gone), evading (the level that flashes while evading, else 0), and change against
+    st gains: stars, crimes (oldest first), fixed (this minute's problems gone), evading (the level that flashes while evading, else 0), and change against
     the last minute: "up", "down", "evading" (just dropped to 0), "clear" (EVADE later, still 0: lost them) or None.
     A problem back while evading restores its level quietly (a flapping check doesn't spam)."""
     since = {k: st.get("since", {}).get(k, now) for k in problems}
     fixed = [c["what"] for c in st.get("crimes", []) if c["key"] not in problems]
     crimes = []
     for k, msg in problems.items():
-        base = weight(k, msg)
-        heat = 0 if k in NO_HEAT else min(HEAT_MAX, int((now - since[k]) // HEAT_EVERY))
-        crimes.append({"key": k, "what": short(msg), "stars": min(5, base + heat), "base": base, "since": since[k]})
-    crimes.sort(key=lambda c: (-c["stars"], c["since"]))
-    stars = min(5, (crimes[0]["stars"] if crimes else 0) + (1 if len(crimes) >= 3 else 0))
+        crimes.append({"key": k, "what": short(msg), "stars": 1, "since": since[k]})  # one star each, until fixed
+    crimes.sort(key=lambda c: c["since"])  # oldest first
+    stars = min(MAX, len(crimes))
 
     before = st.get("stars", 0)
     lost = st.pop("lost", None) if stars else st.get("lost")  # any problem ends the evading
@@ -109,7 +88,7 @@ def for_ha(st: dict) -> dict:
         "crimes": [{"key": c["key"], "what": c["what"], "stars": c["stars"], "since": c["since"]} for c in st.get("crimes", [])]}
 
 
-def stars_text(n: int, total: int = 5) -> str:
+def stars_text(n: int, total: int = MAX) -> str:
     return "★" * n + "☆" * (total - n)
 
 
